@@ -1,15 +1,19 @@
 # Slack Python OAuth Example
 
-This repo contains a sample app for doing OAuth with Slack. It uses the [python-slackclient](https://github.com/slackapi/python-slackclient) and [python-slack-events-api](https://github.com/slackapi/python-slack-events-api). It has been tested on `python 3.7.5`.
+This repo contains a sample app for doing OAuth with Slack. It uses the [python-slackclient](https://github.com/slackapi/python-slackclient) and [python-slack-events-api](https://github.com/slackapi/python-slack-events-api) packages. It has been tested on `python 3.7.5`.
 
-I recommend using [`ngrok`](https://ngrok.com/download) for local development of slack apps. Checkout [this guide](https://api.slack.com/tutorials/tunneling-with-ngrok) for setting it up.
+I recommend using [`ngrok`](https://ngrok.com/download) for local development of Slack apps. Checkout [this guide](https://api.slack.com/tutorials/tunneling-with-ngrok) for setting it up.
+
+TODO: link to the tutorial
+
+TODO: mention prerequisites: create a Slack app, etc.
 
 ## Install dependencies
 
+TODO: recommend using a virtualenv with a link to some instructions. include a requirements.txt with the dependencies.
+
 ```
-pip3 install slackclient
-pip3 install slackeventsapi
-pip3 install flask
+pip3 install -r requirements.txt
 ```
 
 ## Setup enviroment variables
