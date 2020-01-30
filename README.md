@@ -61,6 +61,8 @@ Now go to **Event Subscriptions** and enable events. For the **Request URL**, pa
 https://3cb89939.ngrok.io/slack/events
 ```
 
+While you are in **Event Subscriptions**, add the `member_joined_channel` event as the app uses it to send a direct message.
+
 Everything is setup. Go to [`http:localhost:5000/begin_auth`](http:localhost:5000/begin_auth) in your browser to start the OAuth install flow for you app!
 
 
