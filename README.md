@@ -6,13 +6,15 @@ I recommend using [`ngrok`](https://ngrok.com/download) for local development of
 
 ## Install dependencies
 
-`pip3 install slackclient`
-`pip3 install slackeventsapi`
-`pip3 install flask`
+```
+pip3 install slackclient
+pip3 install slackeventsapi
+pip3 install flask
+```
 
 ## Setup enviroment variables
 
-This app requires you setup a few enviroment variables. You can get these values from your app's *BASIC INFORMATION* [Page](https://api.slack.com/apps). 
+This app requires you setup a few enviroment variables. You can get these values by navigating to your app's [**BASIC INFORMATION** Page](https://api.slack.com/apps). 
 
 ```
 export SLACK_CLIENT_ID = YOUR_SLACK_CLIENT_ID
@@ -44,13 +46,13 @@ This should output a forwarding address for `http` and `https`. Take note of the
 Forwarding   https://3cb89939.ngrok.io -> http://localhost:5000
 ```
 
-Go to your app on https://api.slack.com/apps and navigate to your apps *OAuth & Permissions* page. Under *Redirect URLs*, add your `ngrok` forwarding address with the `/finish_auth` path appended. ex:
+Go to your app on https://api.slack.com/apps and navigate to your apps **OAuth & Permissions** page. Under **Redirect URLs**, add your `ngrok` forwarding address with the `/finish_auth` path appended. ex:
 
 ```
 https://3cb89939.ngrok.io/finish_auth
 ```
 
-Now go to *Event Subscriptions* and enable events. For the *Request URL*, pass your `ngrok` forwarding address with `/slack/events` path appended. ex:
+Now go to **Event Subscriptions** and enable events. For the **Request URL**, pass your `ngrok` forwarding address with `/slack/events` path appended. ex:
 
 ```
 https://3cb89939.ngrok.io/slack/events
