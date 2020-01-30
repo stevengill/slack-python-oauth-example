@@ -20,7 +20,10 @@ This app requires you setup a few enviroment variables. You can get these values
 export SLACK_CLIENT_ID = YOUR_SLACK_CLIENT_ID
 export SLACK_CLIENT_SECRET = YOUR_SLACK_CLIENT_SECRET
 export SLACK_SIGNING_SECRET = YOUR_SLACK_SIGNING_SECRET
+```
+You also need to setup `FLASK_APP` enviroment variable so `flask run` knows what to run. This should point to this repos `app.py`.
 
+```
 export FLASK_APP=app.py
 ```
 
