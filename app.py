@@ -6,11 +6,12 @@ from slackeventsapi import SlackEventAdapter
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
 signing_secret = os.environ["SLACK_SIGNING_SECRET"]
-state='super-secret-state'
+state="super-secret-state"
 # Scopes needed for this app
-oauth_scope = 'chat:write, channels:read, channels:join, 	channels:manage'
+oauth_scope = "".join(["chat:write", "channels:read", "channels:join", "channels:manage"])
 
 app = Flask(__name__)
+
 # Route to kick off Oauth flow
 @app.route("/begin_auth", methods=["GET"])
 def pre_install():
@@ -20,14 +21,14 @@ def pre_install():
 @app.route("/finish_auth", methods=["GET", "POST"])
 def post_install():
   # Retrieve the auth code and state from the request params
-    auth_code = request.args['code']
-    received_state = request.args['state']
+    auth_code = request.args["code"]
+    received_state = request.args["state"]
 
-  # An empty string is a valid token for this request
-    client = slack.WebClient(token="")
+  # Token is not required to call the oauth.v2.access method
+    client = slack.WebClient()
   
     if received_state == state:
-      # Request the auth tokens from Slack
+      # Exchange the authorization code for an access token with Slack
       response = client.oauth_v2_access(
           client_id=client_id,
           client_secret=client_secret,
@@ -37,7 +38,7 @@ def post_install():
       return "Invalid State"
 
     # Save the bot token to an environmental variable or to your data store
-    os.environ["SLACK_BOT_TOKEN"] = response['access_token']
+    os.environ["SLACK_BOT_TOKEN"] = response["access_token"]
 
     # See if "the-welcome-channel" exists. Create it if it doesn't. 
     channel_exists()
@@ -55,7 +56,7 @@ def channel_exists():
     exists = False
     for k in clist["channels"]:
       # look for the channel in the list of existing channels
-      if k['name'] == 'the-welcome-channel':
+      if k["name"] == "the-welcome-channel":
         exists = True
         break
     if exists == False:
@@ -76,13 +77,13 @@ slack_events_adapter = SlackEventAdapter(signing_secret, "/slack/events", app)
 # Sends a DM to the user who joined the channel
 @slack_events_adapter.on("member_joined_channel")
 def member_joined_channel(event_data):
-    user = event_data['event']['user']
-    channelid = event_data['event']['channel']
+    user = event_data["event"]["user"]
+    channelid = event_data["event"]["channel"]
     token = os.environ["SLACK_BOT_TOKEN"]
     
     # In case the app doesn't have access to the oAuth Token
     if token is None:
-      print('ERROR: Autenticate the App!')
+      print("ERROR: Autenticate the App!")
       return
     client = slack.WebClient(token=token)
 
