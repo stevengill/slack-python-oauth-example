@@ -2,13 +2,18 @@ import os
 import slack
 from flask import Flask, request
 from slackeventsapi import SlackEventAdapter
+from uuid import uuid4
 
 client_id = os.environ["SLACK_CLIENT_ID"]
 client_secret = os.environ["SLACK_CLIENT_SECRET"]
 signing_secret = os.environ["SLACK_SIGNING_SECRET"]
-state="super-secret-state"
+state = str(uuid4())
 # Scopes needed for this app
-oauth_scope = "".join(["chat:write", "channels:read", "channels:join", "channels:manage"])
+oauth_scope = ", ".join(["chat:write", "channels:read", "channels:join", "channels:manage"])
+
+# Create a dictionary to represent a database to store our token
+token_database = {}
+global_token = ""
 
 app = Flask(__name__)
 
@@ -21,53 +26,59 @@ def pre_install():
 @app.route("/finish_auth", methods=["GET", "POST"])
 def post_install():
   # Retrieve the auth code and state from the request params
-    auth_code = request.args["code"]
-    received_state = request.args["state"]
+  auth_code = request.args["code"]
+  received_state = request.args["state"]
 
   # Token is not required to call the oauth.v2.access method
-    client = slack.WebClient()
+  client = slack.WebClient()
   
-    if received_state == state:
-      # Exchange the authorization code for an access token with Slack
-      response = client.oauth_v2_access(
-          client_id=client_id,
-          client_secret=client_secret,
-          code=auth_code
-      )
-    else:
-      return "Invalid State"
+  # verify state received in params matches state we originally sent in auth request
+  if received_state == state:
+    # Exchange the authorization code for an access token with Slack
+    response = client.oauth_v2_access(
+        client_id=client_id,
+        client_secret=client_secret,
+        code=auth_code
+    )
+  else:
+    return "Invalid State"
 
-    # Save the bot token to an environmental variable or to your data store
-    os.environ["SLACK_BOT_TOKEN"] = response["access_token"]
 
-    # See if "the-welcome-channel" exists. Create it if it doesn't. 
-    channel_exists()
+  # Save the bot token and teamID to a database
+  # In our example, we are saving it to dictionary to represent a DB  
+  teamID = response["team"]["id"]
+  token_database[teamID] = response["access_token"]
+  # Also save the bot token in a global variable so we don't have to 
+  # do a database lookup on each WebClient call
+  global global_token
+  global_token = response["access_token"]
 
-    # Don't forget to let the user know that auth has succeeded!
-    return "Auth complete!"
+  # See if "the-welcome-channel" exists. Create it if it doesn't. 
+  channel_exists()
+
+  # Don't forget to let the user know that auth has succeeded!
+  return "Auth complete!"
 
 # verifies if "the-welcome-channel" already exists
 def channel_exists():
-    token = os.environ["SLACK_BOT_TOKEN"]
-    client = slack.WebClient(token=token)
+  client = slack.WebClient(token=global_token)
 
-    # grab a list of all the channels in a workspace
-    clist = client.conversations_list()
-    exists = False
-    for k in clist["channels"]:
-      # look for the channel in the list of existing channels
-      if k["name"] == "the-welcome-channel":
-        exists = True
-        break
-    if exists == False:
-      # create the channel since it doesn't exist
-      create_channel()
+  # grab a list of all the channels in a workspace
+  clist = client.conversations_list()
+  exists = False
+  for k in clist["channels"]:
+    # look for the channel in the list of existing channels
+    if k["name"] == "the-welcome-channel":
+      exists = True
+      break
+  if exists == False:
+    # create the channel since it doesn't exist
+    create_channel()
 
 # creates a channel named "the-welcome-channel"
 def create_channel():
-    token = os.environ["SLACK_BOT_TOKEN"]
-    client = slack.WebClient(token=token)
-    resp = client.conversations_create(name="the-welcome-channel")
+  client = slack.WebClient(token=global_token)
+  resp = client.conversations_create(name="the-welcome-channel")
 
 # Bind the Events API route to your existing Flask app by passing the server
 # instance as the last param, or with `server=app`.
@@ -77,19 +88,22 @@ slack_events_adapter = SlackEventAdapter(signing_secret, "/slack/events", app)
 # Sends a DM to the user who joined the channel
 @slack_events_adapter.on("member_joined_channel")
 def member_joined_channel(event_data):
-    user = event_data["event"]["user"]
-    channelid = event_data["event"]["channel"]
-    token = os.environ["SLACK_BOT_TOKEN"]
-    
-    # In case the app doesn't have access to the oAuth Token
-    if token is None:
-      print("ERROR: Autenticate the App!")
-      return
-    client = slack.WebClient(token=token)
+  user = event_data["event"]["user"]
+  channelid = event_data["event"]["channel"]
+  teamID = event_data["team_id"]
 
-    # Use conversations.info method to get channel name for DM msg
-    info = client.conversations_info(channel=channelid)
-    msg = f'Welcome! Thanks for joining {info["channel"]["name"]}'
-    client.chat_postMessage(channel=user, text=msg)
+  # look up the token in our "database"
+  token = token_database[teamID]
+  
+  # In case the app doesn't have access to the oAuth Token
+  if token is None:
+    print("ERROR: Autenticate the App!")
+    return
+  client = slack.WebClient(token=token)
+
+  # Use conversations.info method to get channel name for DM msg
+  info = client.conversations_info(channel=channelid)
+  msg = f'Welcome! Thanks for joining {info["channel"]["name"]}'
+  client.chat_postMessage(channel=user, text=msg)
 
 
