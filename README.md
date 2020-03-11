@@ -4,7 +4,7 @@ This repo contains a sample app for doing OAuth with Slack. It uses the [python-
 
 I recommend using [`ngrok`](https://ngrok.com/download) for local development of Slack apps. Checkout [this guide](https://api.slack.com/tutorials/tunneling-with-ngrok) for setting it up.
 
-TODO: link to the tutorial
+Checkout the full tutorial at https://api.slack.com/tutorials/understanding-oauth-scopes-bot
 
 Before we get started, make sure you have a development workspace where you have permissions to install apps. If you don’t have one setup, go ahead and [create one](https://slack.com/create). You also need to [create a new app](https://api.slack.com/apps?new_app=1) if you haven’t already. 
 
