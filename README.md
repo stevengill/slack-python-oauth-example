@@ -16,16 +16,16 @@ TODO: recommend using a virtualenv with a link to some instructions. include a r
 pip3 install -r requirements.txt
 ```
 
-## Setup enviroment variables
+## Setup environment variables
 
-This app requires you setup a few enviroment variables. You can get these values by navigating to your app's [**BASIC INFORMATION** Page](https://api.slack.com/apps). 
+This app requires you setup a few environment variables. You can get these values by navigating to your app's [**BASIC INFORMATION** Page](https://api.slack.com/apps). 
 
 ```
 export SLACK_CLIENT_ID = YOUR_SLACK_CLIENT_ID
 export SLACK_CLIENT_SECRET = YOUR_SLACK_CLIENT_SECRET
 export SLACK_SIGNING_SECRET = YOUR_SLACK_SIGNING_SECRET
 ```
-You also need to setup `FLASK_APP` enviroment variable so `flask run` knows what to run. This should point to this repos `app.py`.
+You also need to setup `FLASK_APP` environment variable so `flask run` knows what to run. This should point to this repos `app.py`.
 
 ```
 export FLASK_APP=app.py
